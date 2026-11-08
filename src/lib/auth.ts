@@ -13,6 +13,11 @@ export type UserProfile = {
   email: string;
   role: UserRole;
   image?: string;
+  school?: string;
+  grade?: string;
+  streak?: number;
+  totalXp?: number;
+  level?: number;
 };
 
 // Mock user session

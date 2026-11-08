@@ -14,7 +14,7 @@ export const viewport = {
 };
 
 import './globals.css';
-import { auth } from '@/lib/auth';
+import { Navbar } from './components/Navbar';
 
 export default function RootLayout({
   children,
@@ -23,7 +23,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="font-sans antialiased bg-background text-foreground">
+      <body className="font-sans antialiased bg-gray-50 text-gray-900">
+        <Navbar />
         {children}
       </body>
     </html>
