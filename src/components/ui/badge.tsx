@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -17,7 +18,7 @@ const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({ className, varian
 
   return (
     <span
-      className={cn(baseClasses, pill && 'p-0.5', variants[variant], className)}
+        className={cn(baseClasses, pill ? 'p-0.5' : undefined, variants[variant], className)}
       ref={ref}
       {...props}
     />
@@ -27,4 +28,3 @@ const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({ className, varian
 Badge.displayName = 'Badge';
 
 export { Badge };
-export type { BadgeProps };

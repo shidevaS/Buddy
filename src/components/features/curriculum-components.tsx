@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
-import { GradeLevel, Subject, Chapter, CurriculumSection } from '@/lib/types';
+import { Button, Card } from '@/components/ui';
+import { Exercise, GradeLevel, Subject, Chapter, CurriculumSection } from '@/lib/types';
 
 interface GradeSelectorProps {
   activeGrade: GradeLevel;
@@ -9,17 +10,20 @@ interface GradeSelectorProps {
 export function GradeSelector({ activeGrade, onGradeSelect }: GradeSelectorProps) {
   return (
     <div className="flex gap-2 mb-4">
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((grade) => (
-        <Button
-          key={grade}
-          variant={activeGrade === grade ? 'primary' : 'outline'}
-          size="sm"
-          onClick={() => onGradeSelect(grade as GradeLevel)}
-        >
-          {grade}st
-          {grade === 1 ? '' : grade === 2 ? 'nd' : grade === 3 ? 'rd' : 'th'}
-        </Button>
-      ))}
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((grade) => {
+        const gradeLevel = String(grade) as GradeLevel;
+        return (
+          <Button
+            key={grade}
+            variant={activeGrade === gradeLevel ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => onGradeSelect(gradeLevel)}
+          >
+            {grade}st
+            {grade === 1 ? '' : grade === 2 ? 'nd' : grade === 3 ? 'rd' : 'th'}
+          </Button>
+        );
+      })}
     </div>
   );
 }
@@ -32,16 +36,16 @@ interface SubjectTabsProps {
 export function SubjectTabs({ activeSubject, onSubjectSelect }: SubjectTabsProps) {
   return (
     <div className="grid grid-cols-2 gap-3 mb-4">
-      <Button variant="outline" size="sm" onClick={() => onSubjectSelect('mathematics')}>
+      <Button variant="ghost" size="sm" onClick={() => onSubjectSelect('mathematics')}>
         Mathematics
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onSubjectSelect('science')}>
+      <Button variant="ghost" size="sm" onClick={() => onSubjectSelect('science')}>
         Science
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onSubjectSelect('social_science')}>
+      <Button variant="ghost" size="sm" onClick={() => onSubjectSelect('social_science')}>
         Social Science
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onSubjectSelect('english')}>
+      <Button variant="ghost" size="sm" onClick={() => onSubjectSelect('english')}>
         English
       </Button>
     </div>
@@ -70,7 +74,7 @@ export function ChapterList({ chapters, onChapterSelect, loading = false }: Chap
       {chapters.map((chapter) => (
         <Button
           key={chapter.id}
-          variant="outline"
+                  variant="ghost"
           size="sm"
           onClick={() => onChapterSelect(chapter)}
         >
@@ -122,10 +126,10 @@ export function ExerciseCard({ exercise, onAnswer }: ExerciseCardProps) {
     return (
       <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200">
         <h4 className="font-medium text-gray-900 mb-3">{exercise.question}</h4>
-        {exercise.options?.map((option, index) => (
+          {exercise.options?.map((option: string, index: number) => (
           <div key={index} className="mb-2">
             <Button
-              variant="outline"
+                      variant="ghost"
               size="sm"
               className="w-full justify-start text-left"
               onClick={() => handleAnswer(option)}

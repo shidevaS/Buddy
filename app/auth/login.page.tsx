@@ -1,33 +1,75 @@
-import { cn } from '@/src/lib/utils';
-import { Button } from '@/src/components/ui';
-import { Input } from '@/src/components/ui';
-import { Card } from '@/src/components/ui';
+'use client';
+
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Card } from '@/components/ui';
+import { auth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [rememberMe, setRememberMe] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const success = await auth.login(email, password, rememberMe);
+      if (success) {
+        router.push('/dashboard');
+      } else {
+        setError('Invalid email or password. Please try again.');
+      }
+    } catch {
+      setError('Something went wrong. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full space-y-6 bg-white rounded-xl shadow-lg p-8">
         <h2 className="text-2xl font-bold text-gray-900">Sign In</h2>
-        
-        <form className="space-y-4">
+
+        {error && (
+          <div className="p-3 rounded-md bg-red-50 text-red-700 text-sm border border-red-100">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             type="email"
             placeholder="Email address"
             required
             autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <Input
             type="password"
             placeholder="Password"
             required
             autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="remember-me"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
                 className="w-4 h-4 rounded border-gray-500 focus:ring-primary"
               />
               <label htmlFor="remember-me" className="text-sm text-gray-600">
@@ -38,25 +80,25 @@ export default function LoginPage() {
               Forgot password?
             </a>
           </div>
-          
-          <Button type="submit" className="w-full">
-            Sign In
+
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
           </Button>
           
           <div className="text-center">
             <span className="text-sm text-gray-500">Or continue with</span>
             <div className="flex gap-3 mt-4">
-              <Button variant="ghost" size="full" className="flex-1">
+                          <Button variant="ghost" size="lg" className="flex-1" disabled>
                 <svg
                   className="h-5 w-5"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                 >
-                  <path d="M22.54 2.73a9.96 9.96 0 0 0-4.25 1.38C14.82 1.59 13.09 1 11 1S7.18.59 5.46 2.73a1.2 1.2 0 0 0-.3 1.26 12.08 12.08 0 0 0 2.7 4.04 8.98 8.98 0 0 1-2.45 2.57M2.73 22.54a9.96 9.96 0 0 0 1.38 4.25c1.59 13.09 1 13.09S1 35.18.59 33.46a1.2 1.2 0 0 0 1.26-.3 12.08 12.08 0 0 0 4.04 2.7 8.98 8.98 0 0 1-2.57-2.45M4.96 21.77a5.98 5.98 0 0 1-1.39-2.03 5.96 5.96 0 0 1-2.03-1.39 5.98 5.96 0 0 1-1.39 2.03 5.98 5.98 0 0 1 2.03 1.39 5.98 5.98 0 0 1 1.39 2.03zM21.77 4.96a5.98 5.98 0 0 1 2.03 1.39 5.96 5.96 0 0 1 1.39 2.03 5.98 5.98 0 0 1-2.03 1.39 5.98 5.98 0 0 1-1.39-2.03 5.98 5.98 0 0 1 1.39 2.03z" />
+                  <path d="M22.54 2.73a9.96 9.96 0 0 0-4.25 1.38C14.82 1.59 13.09 1 11 1S7.18.59 5.46 2.73a1.2 1.2 0 0 0-.3 1.26 12.08 12.08 0 0 0 2.7 4.04 8.98 8.98 0 0 1-2.45 2.57M2.73 22.54a9.96 9.96 0 0 0 1.38 4.25c1.59 13.09 1 13.09S1 35.18.59 33.46a1.2 1.2 0 0 0 1.26-.3 12.08 12.08 0 0 0 4.04 2.7 8.98 8.98 0 0 1-2.57-2.45M4.96 21.77a5.98 5.98 0 0 1-1.39-2.03 5.96 5.96 0 0 1-2.03-1.39 5.98 5.98 0 0 1-1.39 2.03 5.98 5.98 0 0 1 1.39 2.03zM21.77 4.96a5.98 5.98 0 0 1 2.03 1.39 5.96 5.96 0 0 1 1.39 2.03 5.98 5.98 0 0 1-2.03 1.39 5.98 5.98 0 0 1 1.39 2.03z" />
                 </svg>
                 Google
               </Button>
-              <Button variant="ghost" size="full" className="flex-1">
+              <Button variant="ghost" size="lg" className="flex-1" disabled>
                 <svg
                   className="h-5 w-5"
                   viewBox="0 0 24 24"
@@ -69,7 +111,7 @@ export default function LoginPage() {
             </div>
           </div>
         </form>
-        
+
         <p className="text-center text-sm text-gray-500">
           Don't have an account? <a href="/auth/signup" className="font-medium text-primary hover:underline">Sign up</a>
         </p>

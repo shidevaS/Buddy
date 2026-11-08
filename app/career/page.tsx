@@ -1,13 +1,16 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import { CareerInterestSelector, SkillProgressBar, CareerPathCard, CertificationCard, UserProgressTracker } from '@/components/features/career-components';
 import { UserProgress, CareerInterest, Skill } from '@/lib/types';
+import * as React from 'react';
 
 interface CareerDevelopmentPageProps {
   user: import('@/lib/types').UserProfile | null;
   progress: import('@/lib/types').UserProgress | null;
 }
 
-export function CareerDevelopmentPage({ user, progress }: CareerDevelopmentPageProps) {
+export default function CareerDevelopmentPage({ user, progress }: CareerDevelopmentPageProps) {
   const [selectedInterest, setSelectedInterest] = React.useState<CareerInterest>('technology');
 
   return (

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -20,4 +21,3 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(({ className, defaultVa
 Tabs.displayName = 'Tabs';
 
 export { Tabs };
-export type { TabsProps };

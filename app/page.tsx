@@ -30,14 +30,14 @@ export default function HomePage() {
                   <Button variant="primary" size="lg">
                     Welcome back, {user.name}!
                   </Button>
-                  <Button variant="outline" size="lg" onClick={auth.logout}>
+                  <Button variant="ghost" size="lg" onClick={auth.logout}>
                     Logout
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button variant="primary" size="lg">Get Started Free</Button>
-                  <Button variant="outline" size="lg">View Courses</Button>
+                  <Button variant="ghost" size="lg">Get Started Free</Button>
+                  <Button variant="ghost" size="lg">View Courses</Button>
                 </>
               )}
             </div>

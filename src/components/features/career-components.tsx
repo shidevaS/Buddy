@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
-import { UserProgress, CareerPath, Skill, Certification } from '@/lib/types';
+import { UserProgress, CareerPath, Skill, Certification, CareerInterest } from '@/lib/types';
+import { Button } from '@/components/ui';
 
 interface CareerInterestSelectorProps {
   selectedInterest: CareerInterest;
@@ -20,7 +21,7 @@ export function CareerInterestSelector({
     elements.push(
       <Button
         key={interest}
-        variant={selectedInterest === interest ? 'primary' : 'outline'}
+        variant={selectedInterest === interest ? 'primary' : 'ghost'}
         size="sm"
         onClick={onClick}
       >
@@ -94,7 +95,7 @@ export function CareerPathCard({ path, isSelected, onSelect }: CareerPathCardPro
         ))}
       </div>
       <Button
-        variant="outline"
+              variant="ghost"
         size="sm"
         onClick={onSelect}
         className="mt-3 w-full"
@@ -117,7 +118,7 @@ export function CertificationCard({ certification }: CertificationCardProps) {
         <span className="text-xs text-gray-500">{certification.issuingOrganization}</span>
       </div>
       <p className="text-xs text-gray-500 mb-1">{certification.dateEarned}</p>
-      <Button variant="outline" size="sm" style={{ width: '100%' }}>
+      <Button variant="ghost" size="sm" style={{ width: '100%' }}>
         Download Certificate
       </Button>
     </div>

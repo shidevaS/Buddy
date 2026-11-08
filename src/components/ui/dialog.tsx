@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface DialogProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -10,9 +11,8 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(({ className, open,
   return (
     <div
       className={cn('modal', className)}
-      open={open}
-      onOpenChange={onOpenChange}
       {...props}
+      ref={ref}
     />
   );
 });
@@ -20,4 +20,3 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(({ className, open,
 Dialog.displayName = 'Dialog';
 
 export { Dialog };
-export type { DialogProps };

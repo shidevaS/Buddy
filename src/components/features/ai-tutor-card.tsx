@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { UserProfile } from '@/lib/types';
+import { Button } from '@/components/ui';
 
 interface AiTutorCardProps {
   user: UserProfile | null;
@@ -36,7 +37,7 @@ export function AiTutorCard({ user, onStartSession }: AiTutorCardProps) {
         </div>
       ) : (
         <Button
-          variant="outline"
+                  variant="ghost"
           size="lg"
           onClick={onStartSession}
           className="w-full justify-center">
@@ -70,10 +71,10 @@ export function AiTutorCard({ user, onStartSession }: AiTutorCardProps) {
       <div className="mt-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
         <h3 className="font-medium text-gray-900 mb-3">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" size="sm">Ask AI Question</Button>
-          <Button variant="outline" size="sm">Generate Quiz</Button>
-          <Button variant="outline" size="sm">Get Study Plan</Button>
-          <Button variant="outline" size="sm">Track Progress</Button>
+          <Button variant="ghost" size="sm">Ask AI Question</Button>
+                    <Button variant="ghost" size="sm">Generate Quiz</Button>
+                    <Button variant="ghost" size="sm">Get Study Plan</Button>
+                    <Button variant="ghost" size="sm">Track Progress</Button>
         </div>
       </div>
     </div>
@@ -96,8 +97,13 @@ function FeatureCard({ icon, title, description, color }: FeatureCardProps) {
     green: 'bg-green-50 text-green-600 border-green-200',
   };
 
+  const baseClasses = cn(
+    colorMap[color] || colorMap.indigo,
+    'rounded-lg p-4 hover:shadow-lg transition-shadow'
+  );
+
   return (
-    <div className={cn(colorMap, 'rounded-lg p-4 hover:shadow-lg transition-shadow')}>
+    <div className={baseClasses}>
       <p className="text-3xl">{icon}</p>
       <h3 className="mt-2 text-sm font-medium text-gray-900">{title}</h3>
       <p className="text-xs text-gray-500 mt-1">{description}</p>

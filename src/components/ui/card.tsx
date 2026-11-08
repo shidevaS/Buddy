@@ -1,8 +1,11 @@
+import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface CardProps {
   className?: string;
   variant?: 'default' | 'elevated' | 'outlined';
+  children?: React.ReactNode;
+  onClick?: () => void;
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, variant = 'default', ...props }, ref) => {
@@ -24,4 +27,3 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, variant =
 Card.displayName = 'Card';
 
 export { Card };
-export type { CardProps };

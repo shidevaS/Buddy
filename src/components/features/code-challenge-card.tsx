@@ -1,5 +1,7 @@
+import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { UserProfile } from '@/lib/types';
+import { UserProfile, CodeChallenge } from '@/lib/types';
+import { Button } from '@/components/ui';
 
 interface CodeChallengeCardProps {
   challenge: CodeChallenge;
@@ -26,7 +28,7 @@ export function CodeChallengeCard({ challenge, onStart }: CodeChallengeCardProps
       </div>
       
       <div className="mt-4">
-        <Button variant="outline" size="sm" onClick={onStart}>
+        <Button variant="ghost" size="sm" onClick={onStart}>
           Solve Challenge
         </Button>
       </div>
@@ -50,28 +52,28 @@ export function CodingSandbox({ user, onCodeChange, onRun }: CodingSandboxProps)
       {/* Language Selector */}
       <div className="flex gap-2 mb-6">
         <Button 
-          variant={language === 'javascript' ? 'primary' : 'outline'} 
+                  variant={language === 'javascript' ? 'primary' : 'ghost'} 
           size="sm" 
           onClick={() => setLanguage('javascript')}
         >
           JavaScript
         </Button>
         <Button 
-          variant={language === 'python' ? 'primary' : 'outline'} 
+                  variant={language === 'python' ? 'primary' : 'ghost'} 
           size="sm" 
           onClick={() => setLanguage('python')}
         >
           Python
         </Button>
         <Button 
-          variant={language === 'typescript' ? 'primary' : 'outline'} 
+                  variant={language === 'typescript' ? 'primary' : 'ghost'} 
           size="sm" 
           onClick={() => setLanguage('typescript')}
         >
           TypeScript
         </Button>
         <Button 
-          variant={language === 'html_css' ? 'primary' : 'outline'} 
+                  variant={language === 'html_css' ? 'primary' : 'ghost'} 
           size="sm" 
           onClick={() => setLanguage('html_css')}
         >
@@ -114,7 +116,7 @@ export function CodingSandbox({ user, onCodeChange, onRun }: CodingSandboxProps)
             {[1, 2, 3].map((id) => (
               <Button 
                 key={id} 
-                variant="outline" 
+                              variant="ghost" 
                 size="sm" 
                 onClick={() => console.log(`Start challenge ${id}`)}
               >

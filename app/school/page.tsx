@@ -1,12 +1,16 @@
+'use client';
+
+import * as React from 'react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui';
 import { GradeSelector, SubjectTabs, ChapterList, CurriculumGrid, ExerciseCard } from '@/components/features/curriculum-components';
-import { GradeLevel, Subject } from '@/lib/types';
+import { GradeLevel, Subject, Chapter } from '@/lib/types';
 
 interface SchoolCurriculumProps {
   user: import('@/lib/types').UserProfile | null;
 }
 
-export function SchoolCurriculumPage({ user }: SchoolCurriculumProps) {
+export default function SchoolCurriculumPage({ user }: SchoolCurriculumProps) {
   const [activeGrade, setActiveGrade] = React.useState<GradeLevel>('6');
   const [activeSubject, setActiveSubject] = React.useState<Subject>('mathematics');
   const [activeChapter, setActiveChapter] = React.useState<Chapter | null>(null);
@@ -181,7 +185,7 @@ export function SchoolCurriculumPage({ user }: SchoolCurriculumProps) {
         {/* Navigation */}
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-600">
           <div className="flex justify-between items-center">
-            <Button variant="outline" size="sm">
+            <Button variant="ghost" size="sm">
               Previous Chapter
             </Button>
             <Button variant="primary" size="sm">

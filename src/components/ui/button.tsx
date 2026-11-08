@@ -1,14 +1,12 @@
+import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'primary' | 'secondary' | 'ghost' | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
-  asChild?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant = 'default', size = 'default', asChild = false, ...props }, ref) => {
-  const Component = asChild ? props.asChild !== false ? 'button' : 'button' : 'button';
-  
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant = 'default', size = 'default', ...props }, ref) => {
   let variants = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -41,4 +39,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, va
 Button.displayName = 'Button';
 
 export { Button };
-export type { ButtonProps };

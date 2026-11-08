@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
@@ -23,7 +25,7 @@ export default function DashboardPage() {
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((grade) => (
               <Button
                 key={grade}
-                variant={grade === 9 ? 'primary' : 'outline'}
+                              variant={grade === 9 ? 'primary' : 'ghost'}
                 size="sm"
                 onClick={() => console.log(`Grade ${grade} selected`)}
               >
@@ -36,18 +38,18 @@ export default function DashboardPage() {
         
         {/* Subjects */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <Button variant="outline" size="sm">Math</Button>
-          <Button variant="outline" size="sm">Science</Button>
-          <Button variant="outline" size="sm">Social Science</Button>
-          <Button variant="outline" size="sm">English</Button>
+          <Button variant="ghost" size="sm">Math</Button>
+          <Button variant="ghost" size="sm">Science</Button>
+          <Button variant="ghost" size="sm">Social Science</Button>
+          <Button variant="ghost" size="sm">English</Button>
         </div>
         
         {/* Chapter notes and worksheets */}
         <div className="grid grid-cols-2 gap-3">
-          <Button variant="outline" size="sm">Chapter 1 Notes</Button>
-          <Button variant="outline" size="sm">Chapter 2 Notes</Button>
-          <Button variant="outline" size="sm">Practice Worksheet 1</Button>
-          <Button variant="outline" size="sm">Practice Worksheet 2</Button>
+          <Button variant="ghost" size="sm">Chapter 1 Notes</Button>
+          <Button variant="ghost" size="sm">Chapter 2 Notes</Button>
+          <Button variant="ghost" size="sm">Practice Worksheet 1</Button>
+          <Button variant="ghost" size="sm">Practice Worksheet 2</Button>
         </div>
       </Card>
       
@@ -63,17 +65,17 @@ export default function DashboardPage() {
           <Card className="p-6 hover:shadow-lg transition-shadow">
             <h3 className="font-medium text-gray-900 mb-2">Python Programming</h3>
             <p className="text-gray-500 text-sm">From basics to advanced projects</p>
-            <Button variant="outline" size="sm">Start Learning</Button>
+            <Button variant="ghost" size="sm">Start Learning</Button>
           </Card>
           <Card className="p-6 hover:shadow-lg transition-shadow">
             <h3 className="font-medium text-gray-900 mb-2">Machine Learning</h3>
             <p className="text-gray-500 text-sm">Fundamentals and real-world projects</p>
-            <Button variant="outline" size="sm">Start Learning</Button>
+            <Button variant="ghost" size="sm">Start Learning</Button>
           </Card>
           <Card className="p-6 hover:shadow-lg transition-shadow">
             <h3 className="font-medium text-gray-900 mb-2">Web Development</h3>
             <p className="text-gray-500 text-sm">Modern web technologies and frameworks</p>
-            <Button variant="outline" size="sm">Start Learning</Button>
+            <Button variant="ghost" size="sm">Start Learning</Button>
           </Card>
         </div>
       </Card>
@@ -98,14 +100,14 @@ export default function DashboardPage() {
             <h3 className="font-medium text-gray-900">Web Form Validation</h3>
             <p className="text-gray-500 text-sm">HTML/CSS/JavaScript</p>
             <div className="mt-3">
-              <Button variant="outline" size="xs">Solve</Button>
+              <Button variant="ghost" size="sm">Solve</Button>
             </div>
           </Card>
           <Card className="p-4">
             <h3 className="font-medium text-gray-900">Python Script</h3>
             <p className="text-gray-500 text-sm">Automation script</p>
             <div className="mt-3">
-              <Button variant="outline" size="xs">Solve</Button>
+              <Button variant="ghost" size="sm">Solve</Button>
             </div>
           </Card>
         </div>
@@ -216,7 +218,7 @@ export default function DashboardPage() {
             </div>
             <h3 className="font-medium text-gray-900">Python Programming</h3>
             <p className="text-xs text-gray-500 mb-2">Course Completion</p>
-            <Button variant="outline" size="sm">Download Badge</Button>
+            <Button variant="ghost" size="sm">Download Badge</Button>
           </Card>
           <Card className="p-4 text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-green-500/20 flex items-center justify-center">
@@ -226,7 +228,7 @@ export default function DashboardPage() {
             </div>
             <h3 className="font-medium text-gray-900">Machine Learning</h3>
             <p className="text-xs text-gray-500 mb-2">Course Completion</p>
-            <Button variant="outline" size="sm">Download Badge</Button>
+            <Button variant="ghost" size="sm">Download Badge</Button>
           </Card>
           <Card className="p-4 text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -236,7 +238,7 @@ export default function DashboardPage() {
             </div>
             <h3 className="font-medium text-gray-900">Web Development</h3>
             <p className="text-xs text-gray-500 mb-2">Course Completion</p>
-            <Button variant="outline" size="sm">Download Badge</Button>
+            <Button variant="ghost" size="sm">Download Badge</Button>
           </Card>
         </div>
       </Card>

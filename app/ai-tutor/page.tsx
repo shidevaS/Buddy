@@ -1,12 +1,15 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import { AiTutorCard } from '@/components/features/ai-tutor-card';
 import { UserProfile } from '@/lib/types';
+import { Button } from '@/components/ui';
 
 interface AiTutoringPageProps {
   user: UserProfile | null;
 }
 
-export function AiTutoringPage({ user }: AiTutoringPageProps) {
+export default function AiTutoringPage({ user }: AiTutoringPageProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -65,14 +68,14 @@ export function AiTutoringPage({ user }: AiTutoringPageProps) {
 
         {/* Quick Topics */}
         <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Button variant="outline" size="sm">Quadratic Equations</Button>
-          <Button variant="outline" size="sm">Linear Equations</Button>
-          <Button variant="outline" size="sm">Calculus Basics</Button>
-          <Button variant="outline" size="sm">Geometry</Button>
-          <Button variant="outline" size="sm">Physics Problems</Button>
-          <Button variant="outline" size="sm">Chemistry Basics</Button>
-          <Button variant="outline" size="sm">English Grammar</Button>
-          <Button variant="outline" size="sm">History Timeline</Button>
+          <Button variant="ghost" size="sm">Quadratic Equations</Button>
+          <Button variant="ghost" size="sm">Linear Equations</Button>
+          <Button variant="ghost" size="sm">Calculus Basics</Button>
+          <Button variant="ghost" size="sm">Geometry</Button>
+          <Button variant="ghost" size="sm">Physics Problems</Button>
+          <Button variant="ghost" size="sm">Chemistry Basics</Button>
+          <Button variant="ghost" size="sm">English Grammar</Button>
+          <Button variant="ghost" size="sm">History Timeline</Button>
         </div>
 
       </div>

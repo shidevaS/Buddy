@@ -1,12 +1,16 @@
+'use client';
+
 import { cn } from '@/lib/utils';
-import { CodeSandbox, CodeChallengeCard } from '@/components/features/code-challenge-card';
+import { CodeChallengeCard } from '@/components/features/code-challenge-card';
+import { Button } from '@/components/ui';
 import { CodeChallenge, DifficultyLevel } from '@/lib/types';
+import * as React from 'react';
 
 interface CodingSandboxProps {
   user: import('@/lib/types').UserProfile | null;
 }
 
-export function CodingSandboxPage({ user }: CodingSandboxProps) {
+export default function CodingSandboxPage({ user }: CodingSandboxProps) {
   const [challenges, setChallenges] = React.useState<CodeChallenge[]>([]);
   const [activeChallenge, setActiveChallenge] = React.useState<CodeChallenge | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] = React.useState<DifficultyLevel>('Easy');
@@ -60,6 +64,20 @@ export function CodingSandboxPage({ user }: CodingSandboxProps) {
     setActiveChallenge(sampleChallenges[0]);
   }, []);
 
+  const [code, setCode] = React.useState(activeChallenge?.starterCode || '');
+  const [output, setOutput] = React.useState<string | null>(null);
+
+  const handleRun = () => {
+    setOutput('Code executed successfully!\nOutput: (simulated) Your code ran without errors.');
+  };
+
+  React.useEffect(() => {
+    if (activeChallenge) {
+      setCode(activeChallenge.starterCode || '');
+      setOutput(null);
+    }
+  }, [activeChallenge]);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -77,21 +95,21 @@ export function CodingSandboxPage({ user }: CodingSandboxProps) {
         {/* Difficulty Filters */}
         <div className="mb-6 flex gap-2">
           <Button
-            variant={selectedDifficulty === 'Easy' ? 'primary' : 'outline'}
+                      variant={selectedDifficulty === 'Easy' ? 'primary' : 'ghost'}
             size="sm"
             onClick={() => setSelectedDifficulty('Easy')}
           >
             Easy
           </Button>
           <Button
-            variant={selectedDifficulty === 'Medium' ? 'primary' : 'outline'}
+                      variant={selectedDifficulty === 'Medium' ? 'primary' : 'ghost'}
             size="sm"
             onClick={() => setSelectedDifficulty('Medium')}
           >
             Medium
           </Button>
           <Button
-            variant={selectedDifficulty === 'Hard' ? 'primary' : 'outline'}
+                      variant={selectedDifficulty === 'Hard' ? 'primary' : 'ghost'}
             size="sm"
             onClick={() => setSelectedDifficulty('Hard')}
           >
@@ -140,7 +158,8 @@ export function CodingSandboxPage({ user }: CodingSandboxProps) {
                 Code Editor ({activeChallenge.language})
               </label>
               <textarea
-                defaultValue={activeChallenge.starterCode || ''}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
                 className="w-full h-[400px] rounded-md bg-gray-50 dark:bg-gray-900 p-4 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
                 rows={15}
                 placeholder={`// ${activeChallenge.title}\n// Start coding here...`}
@@ -149,7 +168,7 @@ export function CodingSandboxPage({ user }: CodingSandboxProps) {
 
             {/* Run Button */}
             <div className="flex justify-end">
-              <Button variant="primary" size="sm">
+              <Button variant="primary" size="sm" onClick={handleRun}>
                 Run Code
               </Button>
             </div>
@@ -157,9 +176,13 @@ export function CodingSandboxPage({ user }: CodingSandboxProps) {
             {/* Test Results */}
             <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
               <h3 className="font-medium text-gray-900 dark:text-white mb-2">Test Results</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                All test cases passing!
-              </p>
+              {output ? (
+                <p className="text-sm text-green-600 dark:text-green-400">{output}</p>
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Click "Run Code" to execute your solution.
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -174,7 +197,7 @@ export function CodingSandboxPage({ user }: CodingSandboxProps) {
               {[1, 2, 3].map((id) => (
                 <Button
                   key={id}
-                  variant="outline"
+                                  variant="ghost"
                   size="sm"
                   onClick={() => console.log(`Start challenge ${id}`)}
                 >
