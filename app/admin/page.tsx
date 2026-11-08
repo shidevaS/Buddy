@@ -1,364 +1,356 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { auth } from '@/lib/auth';
-
-type Student = {
-  id: string; name: string; email: string; school?: string; grade?: string;
-  streak?: number; totalXp?: number; level?: number; createdAt?: string;
-};
-type Homework = {
-  id: string; title: string; subject: string; grade: string;
-  description: string; dueDate: string; status: string;
-  assignedBy: string; studentId: string; totalMarks?: number; marks?: number;
-};
+import { useRouter } from "next/navigation";
+import { auth } from "@/lib/auth";
+import * as React from "react";
+import { Card, Tabs, TabList, Tab, TabPanel } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 
 export default function AdminWorkspace() {
   const router = useRouter();
   const user = auth.getUser();
-  const [mounted, setMounted] = React.useState(false);
-
-  const [students, setStudents] = React.useState<Student[]>([]);
-  const [homework, setHomework] = React.useState<Homework[]>([]);
-  const [newHomework, setNewHomework] = React.useState({
-    title: '', subject: '', grade: '', description: '', dueDate: '', studentId: '', totalMarks: '',
-  });
-  const [loading, setLoading] = React.useState(true);
+  const [mounted, setMounted] = useState(false);
 
   React.useEffect(() => {
     setMounted(true);
-    fetchData();
-  }, []);
-
-  async function fetchData() {
-    try {
-      const [sRes, hRes] = await Promise.all([
-        fetch('/api/students'),
-        fetch('/api/homework'),
-      ]);
-      setStudents((await sRes.json()).students || []);
-      setHomework((await hRes.json()).homework || []);
-    } catch (e) {
-      console.error('Failed to load admin data', e);
-    } finally {
-      setLoading(false);
+    if (!user || user.role !== "admin") {
+      router.push("/dashboard");
     }
-  }
+  }, [user, router]);
 
-  if (!mounted) return null;
-  if (!user || user.role !== 'admin') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="p-8 w-full max-w-md">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Admin Workspace</h2>
-          <p className="text-gray-500 mb-6">Admin access required.</p>
-          {user ? (
-            <p className="text-sm text-red-600 mb-4">Logged in as {user.role}. Contact Shivani Sharma for admin access.</p>
-          ) : (
-            <p className="text-sm text-gray-500 mb-4">Please sign in as admin.</p>
-          )}
-          <Button onClick={() => router.push('/auth/login')} className="w-full">
-            Sign In
-          </Button>
-        </Card>
-      </div>
+  if (!mounted || !user) return null;
+
+  // Sample student data - in production this would come from API
+  const [students, setStudents] = useState(
+    Array.from({ length: 20 }, (_, i) => ({
+      id: `student-${i + 1}`,
+      name: `Student ${i + 1}`,
+      email: `student${i + 1}@example.com`,
+      role: "student",
+      grade: `Grade ${9 + (i % 2)}`,
+      totalXp: 1000 + i * 50,
+      level: 1 + Math.floor(i / 5),
+      streak: Math.floor(Math.random() * 30),
+      completedChapters: ["Algebra", "Physics", "History"][i % 3]
+        .split(",")
+        .map((s) => s.trim()),
+      completedQuizzes: Math.floor(Math.random() * 50),
+      completedHomeworks: Math.floor(Math.random() * 20),
+      badges: Math.random() > 0.5 ? ["Early Bird"] : [],
+    })
+  );
+
+  const [homeworks, setHomeworks] = useState(
+    Array.from({ length: 10 }, (_, i) => ({
+      id: `admin-hw-${i + 1}`,
+      title: `Homework #${i + 1}`,
+      description: `Assignment ${i + 1} for students`,
+      subject: ["mathematics", "science", "english"][i % 3],
+      grade: `Grade ${9 + (i % 2)}`,
+      dueDate: new Date(Date.now() + 86400000 * (i + 1)).toISOString().split("T")[0],
+      status: i % 4 === 0 ? "overdue" : i % 2 === 0 ? "pending" : "in_progress",
+      assignedBy: "admin",
+      maxScore: 20,
+    })
+  );
+
+  const [competitions, setCompetitions] = useState(
+    Array.from({ length: 5 }, (_, i) => ({
+      id: `admin-comp-${i + 1}`,
+      title: `Competition #${i + 1}`,
+      description: `Competition description ${i + 1}`,
+      type: ["hackathon", "coding_challenge", "science_fair"][i % 3],
+      prize: i === 0 ? "?50,000" : i === 1 ? "Certification" : "Mentorship",
+      startDate: new Date(Date.now() + 86400000 * (i + 2)).toISOString().split("T")[0],
+      endDate: new Date(Date.now() + 86400000 * (i + 10)).toISOString().split("T")[0],
+      eligibility: i % 2 === 0 ? "grade_9_10" : "all_grades",
+      maxParticipants: 100 + i * 10,
+      registeredCount: 50 + i * 5,
+      status: ["upcoming", "ongoing", "completed"][i],
+      link: i === 0 ? "https://hackathon.omnilearn.in" : undefined,
+    })
+  );
+
+  const [quizAlerts, setQuizAlerts] = useState(
+    Array.from({ length: 8 }, (_, i) => ({
+      id: `admin-qz-${i + 1}`,
+      title: `Daily Quiz #${i + 1}`,
+      description: `Quiz ${i + 1} on various subjects`,
+      subject: ["mathematics", "science", "english"][i % 3],
+      grade: `Grade ${9 + (i % 2)}`,
+      deadline: new Date(Date.now() + 3600000 * (i + 2)).toISOString(),
+      points: 10,
+      isSolved: i % 3 !== 0,
+    })
+  );
+
+  const handleRefresh = () => {
+    // In a real app, this would fetch fresh data from the API
+    setStudents(
+      Array.from({ length: 20 }, (_, i) => ({
+        id: `student-${i + 1}`,
+        name: `Student ${i + 1}`,
+        email: `student${i + 1}@example.com`,
+        role: "student",
+        grade: `Grade ${9 + (i % 2)}`,
+        totalXp: 1000 + i * 50,
+        level: 1 + Math.floor(i / 5),
+        streak: Math.floor(Math.random() * 30),
+        completedChapters: ["Algebra", "Physics", "History"][i % 3]
+          .split(",")
+          .map((s) => s.trim()),
+        completedQuizzes: Math.floor(Math.random() * 50),
+        completedHomeworks: Math.floor(Math.random() * 20),
+        badges: Math.random() > 0.5 ? ["Early Bird"] : [],
+      }))
     );
-  }
-
-  const handleAddHomework = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetch('/api/homework', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...newHomework,
-          assignedBy: user.name,
-        }),
-      });
-      setNewHomework({ title: '', subject: '', grade: '', description: '', dueDate: '', studentId: '', totalMarks: '' });
-      fetchData();
-    } catch (err) {
-      console.error(err);
-    }
+    setHomeworks(
+      Array.from({ length: 10 }, (_, i) => ({
+        id: `admin-hw-${i + 1}`,
+        title: `Homework #${i + 1}`,
+        description: `Assignment ${i + 1} for students`,
+        subject: ["mathematics", "science", "english"][i % 3],
+        grade: `Grade ${9 + (i % 2)}`,
+        dueDate: new Date(Date.now() + 86400000 * (i + 1)).toISOString().split("T")[0],
+        status: i % 4 === 0 ? "overdue" : i % 2 === 0 ? "pending" : "in_progress",
+        assignedBy: "admin",
+        maxScore: 20,
+      }))
+    );
+    setCompetitions(
+      Array.from({ length: 5 }, (_, i) => ({
+        id: `admin-comp-${i + 1}`,
+        title: `Competition #${i + 1}`,
+        description: `Competition description ${i + 1}`,
+        type: ["hackathon", "coding_challenge", "science_fair"][i % 3],
+        prize: i === 0 ? "50,000" : i === 1 ? "Certification" : "Mentorship",
+        startDate: new Date(Date.now() + 86400000 * (i + 2)).toISOString().split("T")[0],
+        endDate: new Date(Date.now() + 86400000 * (i + 10)).toISOString().split("T")[0],
+        eligibility: i % 2 === 0 ? "grade_9_10" : "all_grades",
+        maxParticipants: 100 + i * 10,
+        registeredCount: 50 + i * 5,
+        status: ["upcoming", "ongoing", "completed"][i],
+        link: i === 0 ? "https://hackathon.omnilearn.in" : undefined,
+      }))
+    );
+    setQuizAlerts(
+      Array.from({ length: 8 }, (_, i) => ({
+        id: `admin-qz-${i + 1}`,
+        title: `Daily Quiz #${i + 1}`,
+        description: `Quiz ${i + 1} on various subjects`,
+        subject: ["mathematics", "science", "english"][i % 3],
+        grade: `Grade ${9 + (i % 2)}`,
+        deadline: new Date(Date.now() + 3600000 * (i + 2)).toISOString(),
+        points: 10,
+        isSolved: i % 3 !== 0,
+      }))
+    );
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="sticky top-0 z-20 border-b bg-white/80 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      {/* Header */}
+      <header className="border-b border-gray-200 bg-white px-4 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center text-white font-bold text-lg">
               AD
             </div>
-            <span className="font-bold text-xl text-gray-900 tracking-tight">OmniLearn<span className="text-rose-600">India</span></span>
+            <span className="font-bold text-lg text-gray-900">Admin Panel</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 text-sm text-gray-600">
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-              ADMIN Workspace
-            </div>
-            <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                <p className="text-xs text-gray-500">Owner: Shivani Sharma</p>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-700 font-medium">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => { auth.logout(); router.push('/auth/login'); }}>
-                Sign out
-              </Button>
-            </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-500">Logged in as: {user.name}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                auth.logout();
+                router.push("/auth/login");
+              }}
+            >
+              Sign Out
+            </Button>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="bg-gradient-to-r from-rose-600 to-rose-800 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <p className="text-rose-100 text-sm uppercase tracking-wider font-semibold mb-1">
-                Admin Dashboard — Managed by Shivani Sharma
-              </p>
-              <h1 className="text-3xl font-bold mb-2">Monitor Students</h1>
-              <p className="text-rose-200 text-sm">
-                Track student progress, assign homework, and oversee competitions & hackathons.
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Badge variant="default" className="bg-white/20 backdrop-blur text-white border-white/30 px-3 py-1">
-                {students.length} Students
-              </Badge>
-              <Badge variant="default" className="bg-white/20 backdrop-blur text-white border-white/30 px-3 py-1">
-                {homework.length} Homework Assigned
-              </Badge>
-            </div>
-          </div>
+      <main className="p-4">
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card className="p-6 text-center">
+            <p className="text-3xl font-bold text-rose-600">{students.length}</p>
+            <p className="text-gray-500">Total Students</p>
+          </Card>
+          <Card className="p-6 text-center">
+            <p className="text-3xl font-bold text-rose-600">{homeworks.length}</p>
+            <p className="text-gray-500">Active Homeworks</p>
+          </Card>
+          <Card className="p-6 text-center">
+            <p className="text-3xl font-bold text-rose-600">{competitions.length}</p>
+            <p className="text-gray-500">Active Competitions</p>
+          </Card>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard title="Total Students" value={students.length} icon="👨‍🎓" color="bg-rose-500" />
-          <StatCard title="Active (7-day streak)" value={students.filter((s) => (s.streak || 0) > 0).length} icon="🔥" color="bg-amber-500" />
-          <StatCard title="Avg Level" value={students.length ? Math.round(students.reduce((a, s) => a + (s.level || 0), 0) / students.length) : 0} icon="⭐" color="bg-violet-500" />
-          <StatCard title="Total XP Distributed" value={students.reduce((a, s) => a + (s.totalXp || 0), 0)} icon="💎" color="bg-green-500" />
-        </div>
-
-        <Tabs defaultValue="students" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 border-b p-1 bg-white rounded-xl shadow-sm">
-            <TabsTrigger value="students" className="flex flex-col items-center gap-1 p-3 text-sm">
-              👨‍🎓 Students
-            </TabsTrigger>
-            <TabsTrigger value="homework" className="flex flex-col items-center gap-1 p-3 text-sm">
-              📝 Assign Homework
-            </TabsTrigger>
-            <TabsTrigger value="overview" className="flex flex-col items-center gap-1 p-3 text-sm">
-              📊 Overview
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="students" className="mt-6 space-y-3">
-            {loading ? (
-              <div className="animate-pulse h-64 bg-gray-200 rounded-xl" />
-            ) : (
+        {/* Tabs for different views */}
+        <div className="mb-6">
+          <Tabs defaultValue="students" onValueChange={() => {}} className="w-full">
+            <TabList className="justify-between">
+              <Tab>Students</Tab>
+              <Tab>Homeworks</Tab>
+              <Tab>Competitions</Tab>
+              <Tab>Quiz Alerts</Tab>
+            </TabList>
+            <TabPanel value="students">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Student Management</h2>
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="min-w-full divide-y divide-gray-200">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">Student</th>
-                      <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">Grade</th>
-                      <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">School</th>
-                      <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">Streak</th>
-                      <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">XP</th>
-                      <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">Level</th>
-                      <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                    <tr className="bg-gray-50">
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Name
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Grade
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        XP
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Level
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Streak
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Badges
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {students.map((s) => (
-                      <tr key={s.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                        <td className="py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-700 text-sm font-medium">
-                              {s.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">{s.name}</p>
-                              <p className="text-xs text-gray-500">{s.email}</p>
-                            </div>
-                          </div>
+                    {students.map((student) => (
+                      <tr key={student.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 font-medium text-gray-900">
+                          {student.name}
                         </td>
-                        <td className="py-3 text-sm text-gray-600">{s.grade || '—'}</td>
-                        <td className="py-3 text-sm text-gray-600">{s.school || '—'}</td>
-                        <td className="py-3 text-sm text-gray-600">
-                          <span className={`flex items-center gap-1 ${(s.streak || 0) > 0 ? 'text-green-600' : 'text-gray-400'}`}>
-                            {(s.streak || 0) > 0 ? '🔥' : '⚪'} {s.streak || 0} day
-                          </span>
+                        <td className="px-6 py-4">
+                          {student.grade}
                         </td>
-                        <td className="py-3 text-sm font-medium text-gray-900">{s.totalXp || 0}</td>
-                        <td className="py-3 text-sm text-gray-600">{s.level || 1}</td>
-                        <td className="py-3">
-                          <Badge variant="default" className="text-xs capitalize">
-                            active
-                          </Badge>
+                        <td className="px-6 py-4">
+                          {student.totalXp}
+                        </td>
+                        <td className="px-6 py-4">
+                          {student.level}
+                        </td>
+                        <td className="px-6 py-4">
+                          {student.streak} days
+                        </td>
+                        <td className="px-6 py-4">
+                          {student.badges.length > 0 ? (
+                            <span className="text-green-600">
+                              {student.badges.join(", ")}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">None</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-600 text-sm"
+                            onClick={() => {
+                              // View student details
+                              alert("Viewing details for " + student.name);
+                            }}
+                          >
+                            View
+                          </Button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              }
               </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="homework" className="mt-6 space-y-4">
-            <form onSubmit={handleAddHomework} className="space-y-4 bg-white p-6 rounded-xl shadow-sm border">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wider">Assign New Homework</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="col-span-full sm:col-span-2">
-                  <Input
-                    placeholder="e.g. Quadratic Equations Practice"
-                    value={newHomework.title}
-                    onChange={(e) => setNewHomework({ ...newHomework, title: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Input
-                    placeholder="Mathematics"
-                    value={newHomework.subject}
-                    onChange={(e) => setNewHomework({ ...newHomework, subject: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Input
-                    placeholder="10"
-                    type="text"
-                    value={newHomework.grade}
-                    onChange={(e) => setNewHomework({ ...newHomework, grade: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Input
-                    type="date"
-                    value={newHomework.dueDate}
-                    onChange={(e) => setNewHomework({ ...newHomework, dueDate: e.target.value })}
-                  />
-                </div>
-                <div className="col-span-full sm:col-span-2">
-                  <Input
-                    placeholder="Describe the homework task"
-                    value={newHomework.description}
-                    onChange={(e) => setNewHomework({ ...newHomework, description: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Input
-                    type="number"
-                    value={newHomework.totalMarks}
-                    onChange={(e) => setNewHomework({ ...newHomework, totalMarks: e.target.value })}
-                  />
-                </div>
-                <div className="col-span-full sm:col-span-2">
-                  <Input
-                    placeholder="e.g. u_2"
-                    value={newHomework.studentId}
-                    onChange={(e) => setNewHomework({ ...newHomework, studentId: e.target.value })}
-                  />
-                </div>
-                <div className="col-span-full">
-                  <Button type="submit" className="w-full bg-rose-600 hover:bg-rose-700">
-                    Assign Homework
-                  </Button>
-                </div>
-              </div>
-            </form>
-
-            <div className="mt-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Recent Homework</h3>
-              <div className="space-y-3">
-                {homework.slice(0, 8).map((h) => (
-                  <Card key={h.id} className="p-4 flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{h.title}</h4>
-                      <p className="text-sm text-gray-500">{h.subject} • Grade {h.grade} • Due {h.dueDate}</p>
-                    </div>
-                    <div className="text-right">
-                      <Badge variant="outline" className="text-xs text-rose-600 border-rose-200 bg-rose-50 capitalize">
-                        {h.status}
-                      </Badge>
-                      <p className="text-xs text-gray-500">by {h.assignedBy}</p>
+            </TabPanel>
+            <TabPanel value="homeworks">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Homework Management</h2>
+              <div className="space-y-4">
+                {homeworks.map((homework) => (
+                  <Card key={homework.id} className="p-4 border-l-4 {homework.status === "overdue" ? "border-red-500" : homework.status === "pending" ? "border-yellow-500" : "border-green-500"}">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-gray-900">{homework.title}</h3>
+                        <p className="text-sm text-gray-500">{homework.description}</p>
+                        <p className="text-xs text-gray-400">
+                          {homework.subject} � {homework.grade} � Due: {new Date(
+                            homework.dueDate
+                          ).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Badge
+        variant={homework.status === "overdue" ? "destructive" : homework.status === "pending" ? "warning" : "default"}
+      >
+        {homework.status}
+      </Badge>
                     </div>
                   </Card>
                 ))}
               </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="overview" className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-6">
-            <Card className="p-6">
-              <p className="text-sm text-gray-500 uppercase tracking-wider font-semibold mb-2">Top Performers</p>
-              <div className="space-y-3">
-                {[...students]
-                  .sort((a, b) => (b.totalXp || 0) - (a.totalXp || 0))
-                  .slice(0, 5)
-                  .map((s, i) => (
-                    <div key={s.id} className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
-                      </span>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{s.name}</p>
-                        <p className="text-xs text-gray-500">Grade {s.grade} • {s.totalXp || 0} XP</p>
+            </TabPanel>
+            <TabPanel value="competitions">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Competition Management</h2>
+              <div className="space-y-4">
+                {competitions.map((competition) => (
+                  <Card key={competition.id} className="p-4 border-l-4 {competition.status === "ongoing" ? "border-green-500" : "border-blue-500"}">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-gray-900">{competition.title}</h3>
+                        <p className="text-sm text-gray-500">{competition.description}</p>
+                        <p className="text-xs text-gray-400">
+                          {competition.type} � {competition.startDate} to {competition.endDate}
+                        </p>
                       </div>
-                      <span className="text-sm font-bold text-gray-900">{s.totalXp || 0}</span>
+                      <Badge
+        variant={competition.status === "ongoing" ? "default" : "outline"}
+      >
+        {competition.status.toUpperCase()}
+      </Badge>
                     </div>
-                  ))}
+                  </Card>
+                ))}
               </div>
-            </Card>
-            <Card className="p-6">
-              <p className="text-sm text-gray-500 uppercase tracking-wider font-semibold mb-2">Streak Leaders</p>
-              <div className="space-y-3">
-                {[...students]
-                  .sort((a, b) => (b.streak || 0) - (a.streak || 0))
-                  .slice(0, 5)
-                  .map((s, i) => (
-                    <div key={s.id} className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 text-xs font-bold">
-                        🔥
-                      </span>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{s.name}</p>
-                        <p className="text-xs text-gray-500">{s.streak || 0} day streak</p>
+            </TabPanel>
+            <TabPanel value="quiz-alerts">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Quiz Alerts Management</h2>
+              <div className="space-y-4">
+                {quizAlerts.map((quiz) => (
+                  <Card key={quiz.id} className="p-4 border-l-4 {quiz.isSolved ? "border-green-500" : "border-indigo-500"}">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-gray-900">{quiz.title}</h3>
+                        <p className="text-sm text-gray-500">{quiz.description}</p>
+                        <p className="text-xs text-gray-400">
+                          {quiz.subject} � {quiz.grade} � Points: {quiz.points}
+                        </p>
                       </div>
-                      <span className="text-sm font-bold text-amber-600">{s.streak || 0}</span>
+                      <Badge
+        variant={quiz.isSolved ? "default" : "outline"}
+      >
+        {quiz.isSolved ? "Solved" : "Unsolved"}
+      </Badge>
                     </div>
-                  ))}
+                  </Card>
+                ))}
               </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            </TabPanel>
+          </Tabs>
+        </div>
       </main>
     </div>
   );
 }
-
-function StatCard({ title, value, icon, color }: { title: string; value: number; icon: string; color: string }) {
-  return (
-    <Card className="p-4 flex items-center justify-between">
-      <div>
-        <p className="text-sm text-gray-500">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-      </div>
-      <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center text-white text-xl`}>
-        {icon}
-      </div>
-    </Card>
-  );
-}
-
-

@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { href: '/coding', label: 'Coding' },
   { href: '/ai-tutor', label: 'AI Tutor' },
   { href: '/career', label: 'Career' },
+  { href: '/student', label: 'Workspace', showRole: ['student'] },
 ];
 
 export function Navbar() {
@@ -31,11 +32,13 @@ export function Navbar() {
         {mounted && user ? (
           <>
             <div className="flex items-center gap-6 text-sm font-medium">
-              {NAV_LINKS.map((link) => (
-                <Link key={link.href} href={link.href} className="text-gray-600 hover:text-indigo-600 transition">
-                  {link.label}
-                </Link>
-              ))}
+              {NAV_LINKS
+                              .filter((link) => link.showRole ? !link.showRole.includes(user.role) : true)
+                              .map((link) => (
+                                <Link key={link.href} href={link.href} className="text-gray-600 hover:text-indigo-600 transition">
+                                  {link.label}
+                                </Link>
+                              ))}
               {user.role === 'admin' ? (
                 <Link href="/admin" className="text-rose-600 hover:text-rose-700 font-semibold">Admin</Link>
               ) : (

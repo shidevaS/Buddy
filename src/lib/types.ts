@@ -184,3 +184,129 @@ export type LiveClass = {
   status: 'upcoming' | 'live' | 'completed';
   studentsEnrolled: number;
 };
+
+// Homework types
+export type HomeworkStatus = 'pending' | 'in_progress' | 'completed' | 'overdue';
+
+export type Homework = {
+  id: string;
+  title: string;
+  description: string;
+  subject: Subject;
+  grade: GradeLevel;
+  dueDate: string;
+  status: HomeworkStatus;
+  assignedBy: 'teacher' | 'admin';
+  maxScore: number;
+  submittedBy?: string;
+  submissionDate?: string;
+  attachmentUrl?: string;
+};
+
+// Competition types
+export type CompetitionType = 'hackathon' | 'coding_challenge' | 'quiz_bowl' | 'science_fair' | 'other';
+
+export type Competition = {
+  id: string;
+  title: string;
+  description: string;
+  type: CompetitionType;
+  prize?: string;
+  startDate: string;
+  endDate: string;
+  eligibility: 'grade_9_10' | 'grade_7_8' | 'grade_5_6' | 'all_grades';
+  maxParticipants: number;
+  registeredCount: number;
+  status: 'upcoming' | 'ongoing' | 'completed';
+  link?: string;
+};
+
+// Quiz/Alert types
+export type QuizDifficulty = 'Easy' | 'Medium' | 'Hard';
+
+export type QuizAlert = {
+  id: string;
+  title: string;
+  description: string;
+  subject: Subject;
+  grade: GradeLevel;
+  deadline: string;
+  points: number;
+  isSolved: boolean;
+};
+
+export type QuizAttempt = {
+  id: string;
+  quizId: string;
+  studentId: string;
+  answers: Record<string, number | string>;
+  score: number;
+  completedAt: string;
+  timeTaken: number; // in seconds
+};
+
+// Live Course types
+export type LiveClassStatus = 'upcoming' | 'live' | 'completed' | 'recorded';
+
+export type LiveCourse = {
+  id: string;
+  title: string;
+  subject: Subject;
+  grade: GradeLevel;
+  instructor: string;
+  duration: string;
+  schedule: string;
+  price: string;
+  status: LiveClassStatus;
+  studentsEnrolled: number;
+  maxStudents: number;
+  thumbnail?: string;
+  recordingUrl?: string;
+  meetingId?: string;
+  meetingPassword?: string;
+};
+
+// Coding Question types
+export type CodingQuestion = {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: DifficultyLevel;
+  language: 'python' | 'javascript' | 'typescript' | 'html_css';
+  starterCode?: string;
+  testCases?: TestCase[];
+  hint?: string;
+  solution?: string;
+  topic: string; // specific topic within subject
+};
+
+// Student Progress/Workspace types
+export type StudentProgress = {
+  userId: string;
+  totalXp: number;
+  level: number;
+  streak: number;
+  completedChapters: string[];
+  completedQuizzes: string[];
+  completedHomeworks: string[];
+  completedChallenges: string[];
+  badges: Badge[];
+};
+
+export type Badge = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  earnedAt: string;
+  criteria: string;
+};
+
+// Subject Mastery
+export type SubjectMastery = {
+  subject: Subject;
+  grade: GradeLevel;
+  masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  progressPercentage: number;
+  lastStudied: string;
+};

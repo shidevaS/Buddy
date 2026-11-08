@@ -1,391 +1,459 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { auth } from '@/lib/auth';
-
-type Homework = {
-  id: string; title: string; subject: string; grade: string;
-  description: string; dueDate: string; status: string;
-  assignedBy: string; totalMarks?: number; marks?: number;
-};
-type Quiz = { id: string; title: string; subject: string; grade: string;
-  description: string; questionCount: number; timeLimit: number;
-  xpReward: number; status: string; scheduledAt?: string };
-type Competition = { id: string; title: string; type: string; subject: string;
-  grade: string; description: string; startDate: string; endDate: string;
-  prize: string; registeredCount: number };
-type Hackathon = { id: string; title: string; theme: string; description: string;
-  startDate: string; endDate: string; mode: string; prize: string;
-  registeredCount: number; status: string };
-type LiveCourse = { id: string; title: string; instructor: string; subject: string;
-  grade: string; description: string; schedule: string; duration: string;
-  price: string; status: string; studentsEnrolled: number };
-type CodingQuestion = { id: string; title: string; language: string;
-  difficulty: string; description: string; starterCode: string;
-  testCases: { input: string; expectedOutput: string }[]; xpReward: number };
-type Subject = { id: string; name: string; code: string; grade: string;
-  chapters: number; color: string; description: string };
+import { useRouter } from "next/navigation";
+import { auth } from "@/lib/auth";
+import * as React from "react";
+import { Card, Tabs, TabList, Tab, TabPanel } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
 
 export default function StudentWorkspace() {
   const router = useRouter();
   const user = auth.getUser();
-  const [mounted, setMounted] = React.useState(false);
-
-  const [homework, setHomework] = React.useState<Homework[]>([]);
-  const [quizzes, setQuizzes] = React.useState<Quiz[]>([]);
-  const [competitions, setCompetitions] = React.useState<Competition[]>([]);
-  const [hackathons, setHackathons] = React.useState<Hackathon[]>([]);
-  const [liveCourses, setLiveCourses] = React.useState<LiveCourse[]>([]);
-  const [codingQuestions, setCodingQuestions] = React.useState<CodingQuestion[]>([]);
-  const [subjects, setSubjects] = React.useState<Subject[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [mounted, setMounted] = useState(false);
+  const [selectedTab] = useState("homework");
 
   React.useEffect(() => {
     setMounted(true);
-    fetchData();
-  }, []);
-
-  async function fetchData() {
-    try {
-      const grade = user?.grade || '10';
-      const [hRes, qRes, cRes, hkRes, lcRes, cqRes, sRes] = await Promise.all([
-        fetch(`/api/homework?studentId=${user?.id}`),
-        fetch('/api/quizzes'),
-        fetch('/api/competitions'),
-        fetch('/api/hackathons'),
-        fetch('/api/live-courses'),
-        fetch('/api/coding-questions'),
-        fetch(`/api/subjects?grade=${grade}`),
-      ]);
-      setHomework((await hRes.json()).homework || []);
-      setQuizzes((await qRes.json()).quizzes || []);
-      setCompetitions((await cRes.json()).competitions || []);
-      setHackathons((await hkRes.json()).hackathons || []);
-      setLiveCourses((await lcRes.json()).liveCourses || []);
-      setCodingQuestions((await cqRes.json()).codingQuestions || []);
-      setSubjects((await sRes.json()).subjects || []);
-    } catch (e) {
-      console.error('Failed to load workspace data', e);
-    } finally {
-      setLoading(false);
+    if (!user) {
+      router.push("/auth/login");
     }
-  }
+  }, [user, router]);
 
-  if (!mounted) return null;
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="p-8 w-full max-w-md">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Welcome to Student Workspace</h2>
-          <p className="text-gray-500 mb-6">Please sign in to continue.</p>
-          <Button onClick={() => router.push('/auth/login')} className="w-full">
-            Sign In
-          </Button>
-        </Card>
-      </div>
-    );
-  }
+  if (!mounted || !user) return null;
 
-  const pendingHomework = homework.filter((h) => h.status === 'pending');
+  // Sample data - in production this would come from API
+  const [homeworks, setHomeworks] = useState<Homework[]>([
+    {
+      id: "hw1",
+      title: "Mathematics Assignment - Algebra",
+      description: "Solve quadratic equations Chapter 4",
+      subject: "mathematics",
+      grade: "9",
+      dueDate: "2024-12-15",
+      status: "pending",
+      assignedBy: "teacher",
+      maxScore: 20,
+    },
+    {
+      id: "hw2",
+      title: "Science Project - Physics",
+      description: "Build a simple circuit model",
+      subject: "science",
+      grade: "9",
+      dueDate: "2024-12-20",
+      status: "in_progress",
+      assignedBy: "teacher",
+      maxScore: 30,
+    },
+  ]);
+
+  const [competitions, setCompetitions] = useState<Competition[]>([
+    {
+      id: "comp1",
+      title: "National Hackathon 2024",
+      description: "Build an AI-powered solution for real-world problems",
+      type: "hackathon",
+      prize: "50,000 + Internship",
+      startDate: '2024-11-20',
+      endDate: "2024-12-10",
+      eligibility: "grade_9_10",
+      maxParticipants: 100,
+      registeredCount: 45,
+      status: "ongoing",
+      link: "https://hackathon.omnilearn.in",
+    },
+    {
+      id: "comp2",
+      title: "Science Fair 2024",
+      description: "Innovative science projects and experiments",
+      type: "science_fair",
+      prize: "Certification + Mentorship",
+      startDate: "2024-12-01",
+      endDate: "2024-12-15",
+      eligibility: "all_grades",
+      maxParticipants: 50,
+      registeredCount: 30,
+      status: "upcoming",
+    },
+  ]);
+
+  const [quizAlerts, setQuizAlerts] = useState<QuizAlert[]>([
+    {
+      id: "qz1",
+      title: "Daily Quiz - Mathematics",
+      description: "Solve 10 questions on quadratic equations",
+      subject: "mathematics",
+      grade: "9",
+      deadline: "2024-12-10T17:00:00",
+      points: 10,
+      isSolved: false,
+    },
+    {
+      id: "qz2",
+      title: "Daily Quiz - Science",
+      description: "Physics: Laws of Motion",
+      subject: "science",
+      grade: "9",
+      deadline: "2024-12-11T17:00:00",
+      points: 10,
+      isSolved: false,
+    },
+  ]);
+
+  const [liveCourses, setLiveCourses] = useState<LiveCourse[]>([
+    {
+      id: "lc1",
+      title: "CBSE Class 9 Mathematics",
+      subject: "mathematics",
+      grade: "9",
+      instructor: "Dr. Sharma",
+      duration: "2 hours",
+      schedule: "Mon-Fri, 4:00 PM - 5:00 PM",
+      price: "Free",
+      status: "upcoming",
+      studentsEnrolled: 1247,
+      maxStudents: 5000,
+    },
+    {
+      id: "lc2",
+      title: "Python Coding Bootcamp",
+      subject: "computer_science",
+      grade: "10",
+      instructor: "Prof. Patel",
+      duration: "6 weeks",
+      schedule: "Tue & Thu, 5:00 PM - 7:00 PM",
+      price: "2,999",
+      status: "upcoming",
+      studentsEnrolled: 892,
+      maxStudents: 1000,
+    },
+  ]);
+
+  const [codingQuestions, setCodingQuestions] = useState<CodingQuestion[]>([
+    {
+      id: "cq1",
+      title: "Reverse a Linked List",
+      description: "Implement a function to reverse a singly linked list",
+      difficulty: "Medium",
+      language: "python",
+      topic: "Data Structures",
+      starterCode: "class Node:\n    def __init__(self, data):\n        self.data = data\n        self.next = None\n\ndef reverse(head):\n    prev = None\n    current = head\n    while current:\n        next_node = current.next\n        current.next = prev\n        prev = current\n        current = next_node\n    return prev",
+      testCases: [
+        { input: "1->2->3->None", expectedOutput: "3->2->1->None", description: "Basic reversal" },
+      ],
+      hint: "Use three pointers: previous, current, and next",
+    },
+    {
+      id: "cq2",
+      title: "HTML Form Validation",
+      description: "Create a form with validation for email and password",
+      difficulty: "Easy",
+      language: "html_css",
+      topic: "Web Development",
+      starterCode: "<form>\n  <div>\n    <label>Email:</label>\n    <input type="email" required>\n  </div>\n  <div>\n    <label>Password:</label>\n    <input type="password" required>\n  </div>\n  <button type="submit">Submit</button>\n</form>",
+      testCases: [],
+      hint: "Use HTML5 validation attributes and CSS for visual feedback",
+    },
+  ]);
+
+  // Tab handler
+  const handleTabChange = (tab: string) => {
+    setSelectedTab(tab);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="sticky top-0 z-20 border-b bg-white/80 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      {/* Header with user info and logout */}
+      <header className="border-b border-gray-200 bg-white px-4 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">
-              OL
+              {user.name.charAt(0)}
             </div>
-            <span className="font-bold text-xl text-gray-900 tracking-tight">OmniLearn<span className="text-indigo-600">India</span></span>
+            <span className="font-bold text-lg text-gray-900">Welcome, {user.name}</span>
+            <span className="text-sm text-gray-500">Grade {user.grade || ""}</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 text-sm text-gray-600">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              {user.role.toUpperCase()} Workspace
-            </div>
-            <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                <p className="text-xs text-gray-500">{user.grade} • {user.school}</p>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => { auth.logout(); router.push('/auth/login'); }}>
-                Sign out
-              </Button>
-            </div>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              auth.logout();
+              router.push("/auth/login");
+            }}
+          >
+            Sign Out
+          </Button>
         </div>
-      </nav>
+      </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <p className="text-indigo-100 text-sm uppercase tracking-wider font-semibold mb-1">
-                Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}, {user.name}
-              </p>
-              <h1 className="text-3xl font-bold mb-2">Student Workspace</h1>
-              <p className="text-indigo-200 text-sm">
-                Manage homework, quizzes, competitions, hackathons & subjects — all in one place.
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Badge variant="default" className="bg-white/20 backdrop-blur text-white border-white/30 px-3 py-1">
-                {user.totalXp || 0} XP
-              </Badge>
-              <Badge variant="default" className="bg-white/20 backdrop-blur text-white border-white/30 px-3 py-1">
-                Level {user.level || 1}
-              </Badge>
-              <Badge variant="default" className="bg-white/20 backdrop-blur text-white border-white/30 px-3 py-1">
-                {user.streak || 0} day streak
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard title="Pending Homework" value={pendingHomework.length} icon="📝" color="bg-rose-500" />
-          <StatCard title="Live Quizzes" value={quizzes.filter((q) => q.status === 'live').length} icon="🧠" color="bg-amber-500" />
-          <StatCard title="Hackathons" value={hackathons.filter((h) => h.status === 'live').length} icon="🚀" color="bg-violet-500" />
-          <StatCard title="Live Courses" value={liveCourses.filter((c) => c.status === 'live').length} icon="📚" color="bg-green-500" />
-        </div>
-
-        <Tabs defaultValue="homework" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 border-b p-1 bg-white rounded-xl shadow-sm">
-            <TabsTrigger value="homework" className="flex flex-col items-center gap-1 p-3 text-sm">
-              📝 Homework
-            </TabsTrigger>
-            <TabsTrigger value="quizzes" className="flex flex-col items-center gap-1 p-3 text-sm">
-              🧠 Quizzes
-            </TabsTrigger>
-            <TabsTrigger value="competitions" className="flex flex-col items-center gap-1 p-3 text-sm">
-              🏆 Competitions
-            </TabsTrigger>
-            <TabsTrigger value="hackathons" className="flex flex-col items-center gap-1 p-3 text-sm">
-              🚀 Hackathons
-            </TabsTrigger>
-            <TabsTrigger value="subjects" className="flex flex-col items-center gap-1 p-3 text-sm">
-              📚 Subjects
-            </TabsTrigger>
-            <TabsTrigger value="live-courses" className="flex flex-col items-center gap-1 p-3 text-sm">
-              🎓 Live Courses
-            </TabsTrigger>
-            <TabsTrigger value="coding" className="flex flex-col items-center gap-1 p-3 text-sm">
-              💻 Coding Questions
-            </TabsTrigger>
-            <TabsTrigger value="alerts" className="flex flex-col items-center gap-1 p-3 text-sm">
-              🔔 Daily Alerts
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="homework" className="mt-6 space-y-3">
-            {loading ? (
-              <div className="animate-pulse h-48 bg-gray-200 rounded-xl" />
-            ) : pendingHomework.length === 0 ? (
-              <Card className="p-8 text-center text-gray-500">No pending homework. You're all caught up! ✅</Card>
-            ) : (
-              homework.map((h) => (
-                <Card key={h.id} className="p-4 flex items-center justify-between border-l-4 border-l-rose-500/50">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{h.title}</h3>
-                    <p className="text-sm text-gray-500">{h.description}</p>
-                    <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
-                      <span>{h.subject}</span>
-                      <span>•</span>
-                      <span>Due {h.dueDate}</span>
-                      <span>•</span>
-                      <span>{h.assignedBy}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-rose-600 border-rose-200 bg-rose-50">
-                      {h.status.charAt(0).toUpperCase() + h.status.slice(1)}
-                    </Badge>
-                    <Button size="sm" variant="ghost">View</Button>
-                  </div>
-                </Card>
-              ))
-            )}
-          </TabsContent>
-
-          <TabsContent value="quizzes" className="mt-6 space-y-3">
-            {quizzes.map((q) => (
-              <Card key={q.id} className="p-4 flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{q.title}</h3>
-                  <p className="text-sm text-gray-500">{q.description}</p>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
-                    <span>{q.subject}</span>
-                    <span>•</span>
-                    <span>{q.questionCount} questions</span>
-                    <span>•</span>
-                    <span>{q.timeLimit} min</span>
-                    <span>•</span>
-                    <span>+{q.xpReward} XP</span>
-                  </div>
+      <main className="p-4">
+        {/* Tab Navigation */}
+        <div className="mb-6">
+          <Tabs defaultValue="homework" onValueChange={handleTabChange} className="w-full">
+            <TabList className="justify-between">
+              <Tab>Homework</Tab>
+              <Tab>Competitions</Tab>
+              <Tab>Quizzes</Tab>
+              <Tab>Live Courses</Tab>
+              <Tab>Coding Questions</Tab>
+              <Tab>Subjects</Tab>
+            </TabList>
+            <TabPanel value="homework">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">My Homework</h2>
+              {homeworks.length === 0 ? (
+                <p className="text-gray-500">No homework assigned. Keep checking for new assignments!</p>
+              ) : (
+                <div className="space-y-4">
+                  {homeworks.map((homework) => (
+                    <Card key={homework.id} className="p-4 border-l-4 {homework.status === "overdue" ? "border-red-500" : "border-indigo-500"}">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium text-gray-900">{homework.title}</h3>
+                          <p className="text-sm text-gray-500 mb-1">{homework.description}</p>
+                          <div className="flex items-center gap-3 text-sm">
+                            <span className="text-indigo-600">{homework.subject} � Grade {homework.grade}</span>
+                            <span className="text-gray-400">� Due: {new Date(homework.dueDate).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <Badge
+                          variant={homework.status === "overdue" ? "destructive" : "default"}
+                        >
+                          {homework.status}
+                        </Badge>
+                      </div>
+                      {homework.status !== "completed" && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <p className="text-xs text-gray-500">Max Score: {homework.maxScore}</p>
+                        </div>
+                      )}
+                    </Card>
+                  ))}
                 </div>
-                <Badge variant={q.status === 'live' ? 'default' : 'secondary'} className="capitalize">
-                  {q.status}
-                </Badge>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="competitions" className="mt-6 space-y-3">
-            {competitions.map((c) => (
-              <Card key={c.id} className="p-4 flex items-center justify-between border-l-4 border-l-amber-500/50">
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{c.title}</h3>
-                  <p className="text-sm text-gray-500">{c.description}</p>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
-                    <span>{c.subject}</span>
-                    <span>•</span>
-                    <span>{c.startDate} → {c.endDate}</span>
-                    <span>•</span>
-                    <span>{c.registeredCount} registered</span>
-                  </div>
+              )}
+            </TabPanel>
+            <TabPanel value="competitions">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Competitions & Hackathons</h2>
+              {competitions.length === 0 ? (
+                <p className="text-gray-500">No competitions found. Check back later for new opportunities!</p>
+              ) : (
+                <div className="space-y-4">
+                  {competitions.map((competition) => (
+                    <Card key={competition.id} className="p-4 border-l-4 {competition.status === "ongoing" ? "border-green-500" : "border-blue-500"}">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium text-gray-900">{competition.title}</h3>
+                          <p className="text-sm text-gray-500 mb-1">{competition.description}</p>
+                          <p className="text-xs text-gray-400">
+                            {competition.type} � {competition.startDate} to {competition.endDate}
+                          </p>
+                        </div>
+                        <Badge
+                          variant={competition.status === "ongoing" ? "default" : "outline"}
+                        >
+                          {competition.status.toUpperCase()}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-xs text-gray-500">
+                          {competition.registeredCount}/{competition.maxParticipants} registered
+                        </p>
+                        {competition.link && (
+                          <a
+                            href={competition.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-indigo-600 text-sm hover underline mt-1 block"
+                          >
+                            {competition.link}
+                          </a>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-900">{c.prize}</p>
-                  <Button size="sm">Register</Button>
+              )}
+            </TabPanel>
+            <TabPanel value="quizzes">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Daily Quizzes & Alerts</h2>
+              {quizAlerts.length === 0 ? (
+                <p className="text-gray-500">No active quizzes. Complete your daily quiz to earn points!</p>
+              ) : (
+                <div className="space-y-4">
+                  {quizAlerts.map((quiz) => (
+                    <Card key={quiz.id} className="p-4 border-l-4 {quiz.isSolved ? "border-green-500" : "border-indigo-500"}">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium text-gray-900">{quiz.title}</h3>
+                          <p className="text-sm text-gray-500 mb-1">{quiz.description}</p>
+                          <div className="flex items-center gap-3 text-sm">
+                            <span className="text-indigo-600">{quiz.subject} � Grade {quiz.grade}</span>
+                            <span className="text-gray-400">� Deadline: {new Date(quiz.deadline).toLocaleString()}</span>
+                          </div>
+                        </div>
+                        <Badge
+                          variant={quiz.isSolved ? "default" : "outline"}
+                        >
+                          {quiz.isSolved ? "Solved" : "Attempt"}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-xs text-gray-500">Points: {quiz.points}</p>
+                        {!quiz.isSolved && (
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-indigo-600 text-sm hover underline mt-1 block"
+                            onClick={() => {
+                              setQuizAlerts(quizAlerts.map((q) => (q.id === quiz.id ? { ...q, isSolved: true } : q)));
+                            }}
+                          >
+                            Take Quiz
+                          </Button>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
                 </div>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="hackathons" className="mt-6 space-y-3">
-            {hackathons.map((h) => (
-              <Card key={h.id} className="p-4 flex items-center justify-between border-l-4 border-l-violet-500/50">
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{h.title}</h3>
-                  <p className="text-sm text-gray-500">{h.description}</p>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
-                    <span>Theme: {h.theme}</span>
-                    <span>•</span>
-                    <span>{h.mode}</span>
-                    <span>•</span>
-                    <span>{h.startDate} → {h.endDate}</span>
-                  </div>
+              )}
+            </TabPanel>
+            <TabPanel value="live-courses">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Live Courses</h2>
+              {liveCourses.length === 0 ? (
+                <p className="text-gray-500">No live courses available. Check the schedule for upcoming sessions!</p>
+              ) : (
+                <div className="space-y-4">
+                  {liveCourses.map((course) => (
+                    <Card key={course.id} className="p-4 border-l-4 {course.status === "live" ? "border-green-500" : "border-blue-500"}">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium text-gray-900">{course.title}</h3>
+                          <p className="text-sm text-gray-500 mb-1">{course.subject} � Grade {course.grade}</p>
+                          <p className="text-xs text-gray-400">
+                            {course.instructor} � {course.schedule}
+                          </p>
+                        </div>
+                        <Badge
+                          variant={course.status === "live" ? "default" : "outline"}
+                        >
+                          {course.status.toUpperCase()}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-xs text-gray-500">
+                          {course.studentsEnrolled}/{course.maxStudents} enrolled � {course.price}
+                        </p>
+                        {course.status === "upcoming" && (
+                          <a
+                            href="#"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-indigo-600 text-sm hover underline mt-1 block"
+                          >
+                            Join Course
+                          </a>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-900">{h.prize}</p>
-                  <Button size="sm">Join</Button>
+              )}
+            </TabPanel>
+            <TabPanel value="coding-questions">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Coding Questions & Challenges</h2>
+              {codingQuestions.length === 0 ? (
+                <p className="text-gray-500">No coding questions available. Keep practicing!</p>
+              ) : (
+                <div className="space-y-4">
+                  {codingQuestions.map((question) => (
+                    <Card key={question.id} className="p-4 border-l-4 border-indigo-500">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium text-gray-900">{question.title}</h3>
+                          <p className="text-sm text-gray-500 mb-1">{question.description}</p>
+                          <p className="text-xs text-gray-400">{question.topic} � {question.difficulty}</p>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-indigo-600">{question.language}</span>
+                          <span className="text-gray-400">{question.testCases?.length || 0} test cases</span>
+                        </div>
+                      </div>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-indigo-600 text-sm hover underline mt-1 block"
+                        onClick={() => {
+                          alert("Opening coding question: " + question.title);
+                        }}
+                      >
+                        Solve
+                      </Button>
+                    </Card>
+                  ))}
                 </div>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="subjects" className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {subjects.map((s) => (
-              <Card key={s.id} className="p-4 text-center cursor-pointer hover:shadow-md transition-shadow group">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-3 ${s.color} text-white group-hover:scale-110 transition-transform`}>
-                  {s.chapters}
-                </div>
-                <h3 className="font-medium text-gray-900 text-sm">{s.name}</h3>
-                <p className="text-xs text-gray-500">{s.chapters} chapters</p>
-                <p className="text-[10px] text-gray-400 mt-1">{s.code}</p>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="live-courses" className="mt-6 space-y-3">
-            {liveCourses.map((c) => (
-              <Card key={c.id} className="p-4 flex items-center justify-between border-l-4 border-l-green-500/50">
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{c.title}</h3>
-                  <p className="text-sm text-gray-500">{c.description}</p>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
-                    <span>{c.instructor}</span>
-                    <span>•</span>
-                    <span>{c.schedule}</span>
-                    <span>•</span>
-                    <span>{c.duration}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-900">{c.price}</p>
-                  <p className="text-xs text-gray-500">{c.studentsEnrolled} enrolled</p>
-                  <Button size="sm">Enroll</Button>
-                </div>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="coding" className="mt-6 space-y-3">
-            {codingQuestions.map((cq) => (
-              <Card key={cq.id} className="p-4 flex items-center justify-between border-l-4 border-l-blue-500/50">
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{cq.title}</h3>
-                  <p className="text-sm text-gray-500">{cq.description}</p>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
-                    <span>{cq.language}</span>
-                    <span>•</span>
-                    <span>{cq.difficulty}</span>
-                    <span>•</span>
-                    <span>+{cq.xpReward} XP</span>
-                  </div>
-                </div>
-                <Button size="sm" variant="ghost" onClick={() => router.push(`/coding?q=${cq.id}`)}>
-                  Solve
+              )}
+            </TabPanel>
+            <TabPanel value="subjects">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Subjects & Curriculum</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => alert("Mathematics curriculum loaded")}
+                >
+                  Mathematics (1-10)
                 </Button>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="alerts" className="mt-6 space-y-4">
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-              <h3 className="font-bold text-blue-900 mb-2">🔔 Daily Quiz Alerts</h3>
-              <p className="text-blue-700 text-sm mb-3">
-                You'll receive daily reminders for live quizzes and upcoming hackathons.
-              </p>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm">Enable Push Notifications</Button>
-                <Button size="sm">Subscribe to Email</Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => alert("Science curriculum loaded")}
+                >
+                  Science (1-10)
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => alert("Social Science curriculum loaded")}
+                >
+                  Social Science (1-10)
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => alert("English curriculum loaded")}
+                >
+                  English (1-10)
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => alert("Hindi curriculum loaded")}
+                >
+                  Hindi (1-10)
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => alert("Computer Science curriculum loaded")}
+                >
+                  Computer Science (1-10)
+                </Button>
               </div>
-            </div>
-            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
-              <h3 className="font-bold text-indigo-900 mb-2">📅 Upcoming Schedule</h3>
-              <ul className="text-sm text-indigo-700 space-y-2">
-                {[
-                  'Mon 6:00 PM — Class 10 Math Live Course',
-                  'Tue 5:00 PM — Python for Beginners',
-                  'Wed 6:00 PM — Daily Math Quiz',
-                  'Fri 7:00 PM — Weekly Hackathon Review',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </TabsContent>
-        </Tabs>
+              <p className="text-sm text-gray-500">
+                Aligned with CBSE/NCERT curriculum. Select a subject to view chapters and exercises.
+              </p>
+            </TabPanel>
+          </Tabs>
+        </div>
       </main>
     </div>
   );
 }
-
-function StatCard({ title, value, icon, color }: { title: string; value: number; icon: string; color: string }) {
-  return (
-    <Card className="p-4 flex items-center justify-between">
-      <div>
-        <p className="text-sm text-gray-500">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-      </div>
-      <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center text-white text-xl`}>
-        {icon}
-      </div>
-    </Card>
-  );
-}
-
-
