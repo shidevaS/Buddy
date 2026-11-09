@@ -1,130 +1,157 @@
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
 import { Card } from '@/components/ui/card';
 import { CardContent } from '@/components/ui/card';
 import { CardHeader } from '@/components/ui/card';
 import { CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { auth } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminDashboard() {
-  const user = auth.getUser();
+  const { user } = useAuth();
 
-  if (!auth.isAdmin(user)) {
+  if (user?.role !== 'admin') {
     return (
-      <div className="py-12 text-center">
-        <h1 className="text-2xl font-bold text-ink-900 mb-2">Access denied</h1>
-        <p className="text-ink-600 mb-6">Only Shivani & Devendra can access the admin console.</p>
+      <div className="py-12 bg-gradient-obsidian text-center">
+        <h1 className="text-2xl font-bold text-white mb-2">Access denied</h1>
+        <p className="text-ink-300/70 mb-6">Only Shivani & Devendra can access the admin console.</p>
         <Link href="/dashboard">
-          <Button variant="outline">Back to dashboard</Button>
+          <Button variant="outline" className="text-white">Back to dashboard</Button>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-ink-900">Admin Console</h1>
-          <p className="text-ink-600">Host classes, author content, and manage the batch.</p>
+    <div className="bg-gradient-obsidian min-h-screen py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white">Admin Console</h1>
+          <p className="text-ink-300/70">
+            Host classes, author content, and manage the batch.
+          </p>
         </div>
-      </div>
 
-      {/* Quick stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard title="Students" value="24" subtitle="+3 this week" />
-        <StatCard title="Live classes" value="2" subtitle="This week" />
-        <StatCard title="Roadmaps" value="6" subtitle="Authored" />
-        <StatCard title="Challenges" value="12" subtitle="Active" />
-      </div>
+        {/* Quick stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="p-6 bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-ink-400">Students</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">24</div>
+              <p className="text-ink-400/70 mt-1">+3 this week</p>
+            </CardContent>
+          </Card>
 
-      {/* Admin actions */}
-      <section>
-        <h2 className="text-xl font-semibold text-ink-900 mb-4">Admin actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <AdminActionCard
-            title="Host a live class"
-            description="Create a Jitsi-secured room and start teaching."
-            href="#"
-            icon="🎥"
-          />
-          <AdminActionCard
-            title="Author content"
-            description="Build roadmaps, modules, and lessons."
-            href="#"
-            icon="📝"
-          />
-          <AdminActionCard
-            title="Set a challenge"
-            description="Create daily/weekly/monthly challenges."
-            href="#"
-            icon="🏆"
-          />
-          <AdminActionCard
-            title="Manage students"
-            description="View batch progress and engagement."
-            href="#"
-            icon="👥"
-          />
-          <AdminActionCard
-            title="Review submissions"
-            description="Grade weekly & monthly challenge submissions."
-            href="#"
-            icon="✅"
-          />
-          <AdminActionCard
-            title="Analytics"
-            description="Signups, completion, churn."
-            href="#"
-            icon="📊"
-          />
+          <Card className="p-6 bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-ink-400">Live classes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">2</div>
+              <p className="text-ink-400/70 mt-1">This week</p>
+            </CardContent>
+          </Card>
+
+          <Card className="p-6 bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-ink-400">Roadmaps</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">6</div>
+              <p className="text-ink-400/70 mt-1">Authored</p>
+            </CardContent>
+          </Card>
+
+          <Card className="p-6 bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-ink-400">Challenges</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">12</div>
+              <p className="text-ink-400/70 mt-1">Active</p>
+            </CardContent>
+          </Card>
         </div>
-      </section>
 
-      <div className="border-t border-white/60 pt-8 mt-8">
-        <p className="text-xs text-ink-400 uppercase tracking-wider">
-          Admins: {user?.name} · Seeded admin access
-        </p>
+        {/* Admin actions */}
+        <section className="rounded-2xl bg-card border-border p-8">
+          <h2 className="text-xl font-semibold text-white mb-4">Admin actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card className="p-4 bg-card border-border hover:bg-card/80 transition-colors">
+              <div className="text-2xl mb-3">🎥</div>
+              <h3 className="font-semibold text-white mb-1">Host a live class</h3>
+              <p className="text-ink-300/70 mb-4">
+                Create a Jitsi-secured room and start teaching.
+              </p>
+              <Link href="#">
+                <Button variant="outline" size="sm" className="w-full">
+                  Open
+                </Button>
+              </Link>
+            </Card>
+
+            <Card className="p-4 bg-card border-border hover:bg-card/80 transition-colors">
+              <div className="text-2xl mb-3">📝</div>
+              <h3 className="font-semibold text-white">Author content</h3>
+              <p className="text-ink-300/70 mb-4">
+                Build roadmaps, modules, and lessons.
+              </p>
+              <Link href="#">
+                <Button variant="outline" size="sm" className="w-full">
+                  Open
+                </Button>
+              </Link>
+            </Card>
+
+            <Card className="p-4 bg-card border-border hover:bg-card/80 transition-colors">
+              <div className="text-2xl mb-3">🏆</div>
+              <h3 className="font-semibold text-white">Set a challenge</h3>
+              <p className="text-ink-300/70 mb-4">
+                Create daily/weekly/monthly challenges.
+              </p>
+              <Link href="#">
+                <Button variant="outline" size="sm" className="w-full">
+                  Open
+                </Button>
+              </Link>
+            </Card>
+
+            <Card className="p-4 bg-card border-border hover:bg-card/80 transition-colors">
+              <div className="text-2xl mb-3">👥</div>
+              <h3 className="font-semibold text-white">Manage students</h3>
+              <p className="text-ink-300/70 mb-4">
+                View batch progress and engagement.
+              </p>
+              <Link href="#">
+                <Button variant="outline" size="sm" className="w-full">
+                  Open
+                </Button>
+              </Link>
+            </Card>
+
+            <Card className="p-4 bg-card border-border hover:bg-card/80 transition-colors">
+              <div className="text-2xl mb-3">📊</div>
+              <h3 className="font-semibold text-white">Analytics</h3>
+              <p className="text-ink-300/70 mb-4">
+                Signups, completion, churn.
+              </p>
+              <Link href="#">
+                <Button variant="outline" size="sm" className="w-full">
+                  Open
+                </Button>
+              </Link>
+            </Card>
+          </div>
+        </section>
+
+        <div className="mt-8 text-center">
+          <p className="text-xs text-ink-400 uppercase tracking-wider">
+            Admins: {user?.name} · Seeded admin access
+          </p>
+        </div>
       </div>
     </div>
-  );
-}
-
-function StatCard({ title, value, subtitle }: { title: string; value: string | number; subtitle: string }) {
-  return (
-    <Card className="p-6">
-      <CardHeader>
-        <CardTitle className="text-sm font-medium text-ink-500">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-ink-900">{value}</div>
-        <p className="text-sm text-ink-500 mt-1">{subtitle}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function AdminActionCard({
-  title,
-  description,
-  href,
-  icon,
-}: {
-  title: string;
-  description: string;
-  href: string;
-  icon: string;
-}) {
-  return (
-    <Card className="p-5 hover:shadow-md transition-shadow">
-      <div className="text-2xl mb-3">{icon}</div>
-      <h3 className="font-semibold text-ink-900 mb-1">{title}</h3>
-      <p className="text-sm text-ink-500 mb-4">{description}</p>
-      <Link href={href}>
-        <Button variant="outline" size="sm" className="w-full">
-          Open
-        </Button>
-      </Link>
-    </Card>
   );
 }

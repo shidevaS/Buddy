@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/auth';
 
 export function Navbar() {
+  const { user, isAuthenticated } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const user = auth.getUser();
-  const isAdminUser = auth.isAdmin(user);
-  const isStudentUser = auth.isStudent(user);
+  const isAdminUser = user?.role === 'admin';
+  const isStudentUser = user?.role === 'student';
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/20 bg-ink-950/80 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border/20 bg-gradient-obsidian backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
