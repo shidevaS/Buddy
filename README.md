@@ -62,23 +62,20 @@ npm start
 
 ```
 Tuition-APP/
-├── app/                    # Next.js 13+ app router
-│   ├── admin/             # Admin workspace pages
-│   ├── student/           # Student workspace pages
-│   ├── auth/              # Authentication pages
-│   ├── dashboard/         # Dashboard layout
-│   ├── components/        # Shared components
-│   └── layout/            # Root layout
-├── src/
-│   ├── components/        # React components
-│   ├── lib/               # Utility functions and types
-│   │   ├── types.ts       # TypeScript type definitions
-│   │   ├── auth.ts        # Authentication logic
-│   │   └── utils.ts       # Utility functions
-│   └── features/          # Feature-specific components
-├── components/            # UI components (shadcn/ui)
-├── styles/                # Global styles and Tailwind config
-└── public/                # Static assets
+├── app/                    # Existing Next.js app (kept as-is)
+├── src/                    # Existing shared lib (kept as-is)
+├── components/             # Existing UI components (kept as-is)
+├── packages/               # Tuiton Phase 1 monorepo (npm workspaces)
+│   ├── web/                # Next.js App Router, TS, Tailwind, shadcn/ui
+│   │   ├── app/            # App Router pages (/, /login, /dashboard/*)
+│   │   ├── components/     # shadcn/ui primitives + Navbar
+│   │   ├── lib/auth.ts     # Auth: seeded admins Shivani & Devendra, role-gated
+│   │   └── prisma/         # Prisma schema (PostgreSQL)
+│   ├── mobile/             # React Native (Expo) companion scaffold
+│   └── shared/             # Shared TS types & API client (@tuiton/shared)
+├── docker/                 # docker-compose.yml (Postgres + Redis)
+├── .env.example            # Environment variable template
+└── .env.development        # Local development env
 ```
 
 ## 🛠️ Technology Stack

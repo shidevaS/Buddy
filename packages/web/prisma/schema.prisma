@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(STUDENT)
+  image     String?
+  streak    Int      @default(0)
+  totalXp   Int      @default(0)
+  level     Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions   Session[]
+  progress   Progress[]
+  badges     UserBadge[]
+  enrollments Enrollment[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Roadmap {
+  id        String   @id @default(cuid())
+  title     String
+  pillar    String   // "subjects" | "innovation"
+  grade     String?  // e.g. "6".."12" for subjects pillar
+  track     String?  // e.g. "coding", "prompt-engg", "ai-tools", "ml", "app-building", "cyber-basics"
+  description String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  modules   Module[]
+  enrollments Enrollment[]
+}
+
+model Module {
+  id        String   @id @default(cuid())
+  roadmapId String
+  title     String
+  order     Int      @default(0)
+
+  roadmap   Roadmap  @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+}
+
+model Lesson {
+  id        String   @id @default(cuid())
+  moduleId  String
+  title     String
+  order     Int      @default(0)
+
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  resources Resource[]
+}
+
+model Resource {
+  id             String   @id @default(cuid())
+  lessonId       String
+  type           String   // "video" | "notes" | "quiz" | "link"
+  title          String
+  url            String?
+  content        String?
+  durationMinutes Int?
+  order          Int      @default(0)
+
+  lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model Challenge {
+  id          String   @id @default(cuid())
+  type        String   // "daily" | "weekly" | "monthly"
+  title       String
+  description String?
+  dueAt       DateTime?
+  xp          Int      @default(0)
+  badgeId     String?
+  createdAt   DateTime @default(now())
+
+  submissions ChallengeSubmission[]
+}
+
+model ChallengeSubmission {
+  id          String   @id @default(cuid())
+  challengeId String
+  userId      String
+  status      String   @default("pending") // "pending" | "reviewed" | "completed"
+  submittedAt DateTime @default(now())
+  reviewedAt  DateTime?
+
+  challenge   Challenge   @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LiveClass {
+  id               String   @id @default(cuid())
+  title            String
+  pillar           String
+  instructor       String
+  startsAt         DateTime
+  endsAt           DateTime
+  jitsiRoom        String
+  jitsiJwt         String?
+  recordingUrl     String?
+  attendanceCaptured Boolean @default(false)
+  createdAt        DateTime @default(now())
+
+  attendance LiveClassAttendance[]
+}
+
+model LiveClassAttendance {
+  id        String   @id @default(cuid())
+  liveClass String
+  userId    String
+  joinedAt  DateTime @default(now())
+
+  liveClass LiveClass @relation(fields: [liveClass], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  userId    String
+  roadmapId String
+  percent   Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmap Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  roadmapId String
+  createdAt DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmap Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+}
+
+model Badge {
+  id        String   @id @default(cuid())
+  name      String
+  description String?
+  icon      String?
+  criteria  String?
+
+  userBadges UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+}

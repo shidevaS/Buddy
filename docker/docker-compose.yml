@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tuiton-postgres
+    environment:
+      POSTGRES_USER: tuiton
+      POSTGRES_PASSWORD: tuiton_dev
+      POSTGRES_DB: tuiton
+    ports:
+      - "5432:5432"
+    volumes:
+      - tuiton_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tuiton -d tuiton"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: tuiton-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - tuiton_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  tuiton_postgres_data:
+  tuiton_redis_data:
